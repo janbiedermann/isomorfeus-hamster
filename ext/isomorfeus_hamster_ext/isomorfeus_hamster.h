@@ -108,6 +108,7 @@ static VALUE call_with_transaction(VALUE venv, VALUE self, const char* name, int
 static VALUE call_with_transaction_helper(VALUE arg);
 static void check(int code);
 static void cursor_check(Cursor* cursor);
+static void cursor_clear(VALUE self);
 static VALUE cursor_close(VALUE self);
 static VALUE cursor_count(VALUE self);
 static VALUE cursor_delete(int argc, VALUE *argv, VALUE self);

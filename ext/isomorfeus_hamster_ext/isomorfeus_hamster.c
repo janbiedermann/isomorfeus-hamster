@@ -146,9 +146,10 @@ static void transaction_finish(VALUE self, int commit) {
                 mdb_txn_abort(transaction->txn);
 
         long i;
+        // mdb_txn_commit and mdb_txn_abort already closed MDB cursors, just clear it
         for (i=0; i<RARRAY_LEN(transaction->cursors); i++) {
                 VALUE cursor = RARRAY_AREF(transaction->cursors, i);
-                cursor_close(cursor);
+                cursor_clear(cursor);
         }
         rb_ary_clear(transaction->cursors);
 
@@ -1013,6 +1014,15 @@ static void cursor_check(Cursor* cursor) {
 
 static void cursor_mark(Cursor* cursor) {
         rb_gc_mark(cursor->db);
+}
+
+/**
+ * @overload clear
+ *  Clear a cursor after the mdb cursor has been closed.  The cursor must not be used again after this call.
+ */
+void cursor_clear(VALUE self) {
+        CURSOR(self, cursor);
+        cursor->cur = 0;
 }
 
 /**
