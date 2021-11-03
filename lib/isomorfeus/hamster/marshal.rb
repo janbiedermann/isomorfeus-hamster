@@ -3,13 +3,13 @@ module Isomorfeus
     module Marshal
       class << self
         def dump(db, key, obj)
-          db.env.transaction { db.put(key, Oj.dump(obj)) }
+          db.env.transaction { db.put(key, ::Oj.dump(obj)) }
         end
 
         def load(db, key)
           obj_j = db.get(key)
           return nil unless obj_j
-          Oj.load(obj_j)
+          ::Oj.load(obj_j)
         end
 
         def structured_dump(db, obj)
@@ -17,9 +17,9 @@ module Isomorfeus
           oc = obj.class.to_s
           ky = obj.key
           as = obj.attributes
-          kv << [ats_key(oc, ky), Oj.dump(as)]
+          kv << [ats_key(oc, ky), ::Oj.dump(as)]
           as.each do |at|
-            kv << [at_key(oc, ky, at), Oj.dump(obj.send(at))]
+            kv << [at_key(oc, ky, at), ::Oj.dump(obj.send(at))]
           end
           db.env.transaction do
             kv.each do |k, v|
@@ -39,10 +39,10 @@ module Isomorfeus
           oh = {}
           db.env.transaction do
             as_j = db.get(ak)
-            as = Oj.load(as_j)
+            as = ::Oj.load(as_j)
             as.each do |at|
               v_j = db.get(at_key(oc, ky, at))
-              oh[at] = Oj.load(v_j)
+              oh[at] = ::Oj.load(v_j)
             end
           end
           oC.instance_from_hash(oh)
