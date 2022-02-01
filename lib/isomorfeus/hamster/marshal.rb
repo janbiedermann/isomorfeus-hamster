@@ -11,6 +11,14 @@ module Isomorfeus
           return nil unless obj_j
           ::Oj.load(obj_j)
         end
+
+        def serialize(obj)
+          ::Oj.dump(obj)
+        end
+
+        def unserialize(obj_j)
+          ::Oj.load(obj_j)
+        end
       end
     end
   end
