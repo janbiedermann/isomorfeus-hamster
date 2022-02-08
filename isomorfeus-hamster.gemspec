@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
 
   s.authors       = ['Jan Biedermann']
   s.email         = ['jan@kursator.com']
-  s.homepage      = 'http://isomorfeus.com'
+  s.homepage      = 'https://isomorfeus.com'
   s.summary       = 'KV store and ObjectDB for Isomorfeus.'
   s.license       = 'MIT'
   s.description   = 'KV store and ObjectDB for Isomorfeus.'
