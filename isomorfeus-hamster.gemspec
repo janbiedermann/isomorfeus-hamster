@@ -11,7 +11,10 @@ Gem::Specification.new do |s|
   s.summary       = 'KV store and ObjectDB for Isomorfeus.'
   s.license       = 'MIT'
   s.description   = 'KV store and ObjectDB for Isomorfeus.'
-  s.metadata      = { "github_repo" => "ssh://github.com/isomorfeus/gems" }
+  s.metadata      = {
+                      "github_repo" => "ssh://github.com/isomorfeus/gems",
+                      "source_code_uri" => "https://github.com/isomorfeus/isomorfeus-hamster"
+                    }
   s.files         = `git ls-files -- lib ext LICENSE README.md`.split("\n")
   s.require_paths = ['lib']
   s.extensions    = %w(ext/isomorfeus_hamster_ext/extconf.rb)
