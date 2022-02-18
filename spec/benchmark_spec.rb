@@ -21,10 +21,33 @@ describe 'benchmark' do
       Isomorfeus::Hamster::Marshal.dump(db, "dump#{i}", arr[i])
     end
     total = Time.now - start
-    puts "Dumping #{count} objects took #{total}s, thats #{count/total} req/s"
+    puts ".Dumping #{count} objects took #{total}s, thats #{count/total} req/s"
     obj_load = Isomorfeus::Hamster::Marshal.load(db, "dump#{count - 1}")
     obj_load.something.should == count - 1
   end
+
+  it 'dumping objects in one transaction' do
+    class Whatever
+      attr_accessor :something
+    end
+    start = Time.now
+    arr = []
+    count.times do |i|
+      obj = Whatever.new
+      obj.something = i
+      arr << obj
+    end
+    db.env.transaction do
+      count.times do |i|
+        Isomorfeus::Hamster::Marshal.dump(db, "dump#{i}", arr[i])
+      end
+    end
+    total = Time.now - start
+    puts "Dumping in one transaction #{count} objects took #{total}s, thats #{count/total} req/s"
+    obj_load = Isomorfeus::Hamster::Marshal.load(db, "dump#{count - 1}")
+    obj_load.something.should == count - 1
+  end
+
 
   it 'loading objects' do
     class Whatever
@@ -45,7 +68,7 @@ describe 'benchmark' do
     obj_load.something.should == count - 1
   end
 
-  it 'dumping objects in one transaction' do
+  it 'putting serialized objects in one transaction' do
     class Whatever
       attr_accessor :something
     end
@@ -58,13 +81,30 @@ describe 'benchmark' do
     end
     db.env.transaction do
       count.times do |i|
-        db.put("dump_t#{i}", ::Oj.dump(arr[i], mode: :object, class_cache: true))
+        db.put("dump_t#{i}", Isomorfeus::Hamster::Marshal.serialize(arr[i], class_cache: true))
       end
     end
     total = Time.now - start
-    puts "Dumping in one transaction #{count} objects took #{total}s, thats #{count/total} req/s"
+    puts "Putting serialized objects in one transaction #{count} objects took #{total}s, thats #{count/total} req/s"
     obj_load = Isomorfeus::Hamster::Marshal.load(db, "dump_t#{count - 1}")
     obj_load.something.should == count - 1
   end
 
+  it 'putting strings in one transaction' do
+    class Whatever
+      attr_accessor :something
+    end
+    start = Time.now
+    arr = []
+    count.times do |i|
+      arr << i.to_s + ('a' * 37) # emulate string length of oj dump
+    end
+    db.env.transaction do
+      count.times do |i|
+        db.put("dump_t#{i}", arr[i])
+      end
+    end
+    total = Time.now - start
+    puts "Putting strings in one transaction #{count} objects took #{total}s, thats #{count/total} req/s"
+  end
 end
