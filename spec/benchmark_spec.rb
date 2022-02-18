@@ -6,6 +6,26 @@ describe 'benchmark' do
   let(:db)    { env.database }
   let(:count) { 10000 }
 
+  it 'compressed dumping objects' do
+    class Whatever
+      attr_accessor :something
+    end
+    start = Time.now
+    arr = []
+    count.times do |i|
+      obj = Whatever.new
+      obj.something = i
+      arr << obj
+    end
+    count.times do |i|
+      Isomorfeus::Hamster::Marshal.dump(db, "dump#{i}", arr[i], compress: 5)
+    end
+    total = Time.now - start
+    puts ".Compressed dumping #{count} objects took #{total}s, thats #{count/total} req/s"
+    obj_load = Isomorfeus::Hamster::Marshal.load(db, "dump#{count - 1}")
+    obj_load.something.should == count - 1
+  end
+
   it 'dumping objects' do
     class Whatever
       attr_accessor :something
@@ -21,7 +41,7 @@ describe 'benchmark' do
       Isomorfeus::Hamster::Marshal.dump(db, "dump#{i}", arr[i])
     end
     total = Time.now - start
-    puts ".Dumping #{count} objects took #{total}s, thats #{count/total} req/s"
+    puts "Dumping #{count} objects took #{total}s, thats #{count/total} req/s"
     obj_load = Isomorfeus::Hamster::Marshal.load(db, "dump#{count - 1}")
     obj_load.something.should == count - 1
   end
@@ -45,6 +65,25 @@ describe 'benchmark' do
     total = Time.now - start
     puts "Dumping in one transaction #{count} objects took #{total}s, thats #{count/total} req/s"
     obj_load = Isomorfeus::Hamster::Marshal.load(db, "dump#{count - 1}")
+    obj_load.something.should == count - 1
+  end
+
+  it 'compressed loading objects' do
+    class Whatever
+      attr_accessor :something
+    end
+    count.times do |i|
+      obj = Whatever.new
+      obj.something = i
+      Isomorfeus::Hamster::Marshal.dump(db, "load#{i}", obj, compress: 5)
+    end
+    start = Time.now
+    count.times do |i|
+      obj_load = Isomorfeus::Hamster::Marshal.load(db, "load#{i}")
+    end
+    total = Time.now - start
+    puts "Compressed loading #{count} objects took #{total}s, thats #{count/total} req/s"
+    obj_load = Isomorfeus::Hamster::Marshal.load(db, "load#{count - 1}")
     obj_load.something.should == count - 1
   end
 

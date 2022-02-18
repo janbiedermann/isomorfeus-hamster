@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.extensions    = %w(ext/isomorfeus_hamster_ext/extconf.rb)
   s.required_ruby_version = '>= 3.0.0'
 
+  s.add_dependency 'brotli', '~> 0.4.0'
   s.add_dependency 'oj', '~> 3.13.11'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rake-compiler'
