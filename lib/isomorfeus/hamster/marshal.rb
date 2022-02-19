@@ -17,12 +17,15 @@ module Isomorfeus
           ::Oj.load(v, mode: :object, circular: true, class_cache: class_cache)
         end
 
-        def serialize(obj, class_cache: true)
-          ::Oj.dump(obj, mode: :object, circular: true, class_cache: class_cache)
+        def serialize(obj, class_cache: true, compress: false)
+          v = ::Oj.dump(obj, mode: :object, circular: true, class_cache: class_cache)
+          v = 'b:' << ::Brotli.deflate(v, quality: compress) if compress
+          v
         end
 
-        def unserialize(obj_j, class_cache: true)
-          ::Oj.load(obj_j, mode: :object, circular: true, class_cache: class_cache)
+        def unserialize(data, class_cache: true)
+          data = ::Brotli.inflate(data[2..]) if v.start_with?(BROTLI)
+          ::Oj.load(data, mode: :object, circular: true, class_cache: class_cache)
         end
       end
     end
