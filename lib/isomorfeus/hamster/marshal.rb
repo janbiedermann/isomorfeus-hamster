@@ -23,9 +23,9 @@ module Isomorfeus
           v
         end
 
-        def unserialize(data, class_cache: true)
-          data = ::Brotli.inflate(data[2..]) if v.start_with?(BROTLI)
-          ::Oj.load(data, mode: :object, circular: true, class_cache: class_cache)
+        def unserialize(v, class_cache: true)
+          v = ::Brotli.inflate(v[2..]) if v.start_with?(BROTLI)
+          ::Oj.load(v, mode: :object, circular: true, class_cache: class_cache)
         end
       end
     end
