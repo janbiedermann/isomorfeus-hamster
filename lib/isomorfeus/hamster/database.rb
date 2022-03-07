@@ -11,8 +11,8 @@ module Isomorfeus
       #      key, value = record
       #      puts "at #{key}: #{value}"
       #    end
-      def each
-        env.transaction true do
+      def each(readonly: true)
+        env.transaction readonly do
           cursor do |c|
             while i = c.next
               yield(i)
@@ -54,9 +54,9 @@ module Isomorfeus
       #
       # @yield key [String] the next key in the database.
       # @return [Enumerator] in lieu of a block.
-      def each_key(&block)
+      def each_key(readonly: true, &block)
         return enum_for :each_key unless block_given?
-        env.transaction true do
+        env.transaction readonly do
           cursor do |c|
             while (rec = c.next true)
               yield rec.first
@@ -71,7 +71,7 @@ module Isomorfeus
       # @param key [#to_s] The key in question.
       # @yield value [String] the next value associated with the key.
       # @return [Enumerator] in lieu of a block.
-      def each_value(key, &block)
+      def each_value(key, readonly: true,  &block)
         return enum_for :each_value, key unless block_given?
 
         value = get(key) or return
@@ -80,7 +80,7 @@ module Isomorfeus
           return
         end
 
-        env.transaction true do
+        env.transaction readonly do
           cursor do |c|
             method = :set
             while rec = c.send(method, key)
